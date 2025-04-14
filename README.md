@@ -1,6 +1,6 @@
-# Travel Booking System (TBS)
+# Travel Booking System
 
-A Java desktop application for managing travel bookings, packages, and user accounts.
+A comprehensive Java desktop application for managing travel bookings, packages, and user accounts with an intuitive interface and robust backend functionality.
 
 ## Features
 
@@ -8,7 +8,9 @@ A Java desktop application for managing travel bookings, packages, and user acco
 - Browse and search travel packages
 - Book travel packages
 - View and cancel bookings
-- Admin functionality for managing packages and users
+- Secure password handling
+- Interactive user dashboard
+- Detailed travel package information with images
 
 ## Technologies Used
 
@@ -16,6 +18,9 @@ A Java desktop application for managing travel bookings, packages, and user acco
 - Swing for GUI
 - MySQL for database storage
 - JDBC for database connectivity
+- MVC (Model-View-Controller) architecture
+- Properties files for configuration management
+- Custom exception handling
 
 ## Prerequisites
 
@@ -39,7 +44,7 @@ SOURCE database/tbs_schema.sql;
 ### 2. Configure Database Connection
 
 1. Navigate to the `config` directory
-2. Copy `db.properties.example` to `db.properties`
+2. Rename `db.properties.example` to `db.properties`
 3. Edit `db.properties` and update with your MySQL credentials:
 
 ```properties
@@ -100,9 +105,21 @@ TBS/
 ## Usage
 
 1. **Login Screen**: Enter credentials or register a new account
+   - New users can register from the login screen
 2. **Home Page**: Browse available travel packages
 3. **Package Details**: View detailed information and book packages
+   - Package descriptions, itineraries, and included amenities
 4. **My Bookings**: View and manage your bookings
+   - See booking status (Confirmed, Cancelled)
+   - Cancel bookings with applicable refund policy
+
+## Architecture Overview
+
+The application follows the MVC (Model-View-Controller) pattern:
+
+- **Models**: Represent data structures (User, Package, Booking)
+- **Views**: Swing GUI components for user interaction
+- **Controllers**: Handle user input and update models/views
 
 ## License
 
