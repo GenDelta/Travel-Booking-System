@@ -53,7 +53,14 @@ db.user=your_username
 db.password=your_password
 ```
 
-### 3. Compile and Run the Application
+### 3. Set up JDBC Driver
+
+1. Create a "lib" folder in src directory
+2. Download the MySQL JDBC driver
+3. Unzip the downloaded folder and copy the JAR file of the driver
+4. Paste the JAR file into the lib directory you created
+
+### 4. Compile and Run the Application
 
 #### Using an IDE (Eclipse, IntelliJ IDEA, etc.)
 
