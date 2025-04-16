@@ -183,6 +183,22 @@ END; //
 
 DELIMITER ;
 
+-- /////////////////////////////////////////////////////////////
+
+-- Trigger to check if BookingStatus is True, only then can a PaymentID exist but an update trigger
+DELIMITER //
+
+CREATE TRIGGER trg_SetPaymentID_Null_On_Update
+BEFORE UPDATE ON Booking
+FOR EACH ROW
+BEGIN
+    IF NEW.BookingStatus = 0 THEN
+        SET NEW.PaymentID = NULL;
+    END IF;
+END; //
+
+DELIMITER ;
+
 -- ================================================================================================
 -- ================================================================================================
 
