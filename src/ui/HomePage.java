@@ -396,7 +396,7 @@ public class HomePage extends JFrame {
         footerPanel.setBackground(PRIMARY_COLOR);
         footerPanel.setBorder(new EmptyBorder(10, 15, 10, 15));
         
-        JLabel copyrightLabel = new JLabel("© 2023 Travel Booking System");
+        JLabel copyrightLabel = new JLabel("© 2025 Travel Booking System");
         copyrightLabel.setForeground(Color.WHITE);
         
         JButton logoutButton = new JButton("Logout");
