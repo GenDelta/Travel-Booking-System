@@ -11,6 +11,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import model.Customer;
 import model.Package;
+import service.UserService;
+import utils.UIUtil;
 
 public class HomePage extends JFrame {
     private Customer customer;
@@ -399,6 +401,30 @@ public class HomePage extends JFrame {
         JLabel copyrightLabel = new JLabel("© 2025 Travel Booking System");
         copyrightLabel.setForeground(Color.WHITE);
         
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        rightPanel.setOpaque(false);
+        
+        JButton deleteAccountButton = new JButton("Delete Account");
+        deleteAccountButton.setBackground(new Color(204, 0, 0));
+        deleteAccountButton.setForeground(Color.WHITE);
+        deleteAccountButton.setFont(new Font("Arial", Font.BOLD, 12));
+        deleteAccountButton.setOpaque(true);  
+        deleteAccountButton.setFocusPainted(false);
+        deleteAccountButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        deleteAccountButton.setBorderPainted(false);
+        
+        deleteAccountButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                deleteAccountButton.setBackground(new Color(153, 0, 0));
+            }
+            
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                deleteAccountButton.setBackground(new Color(204, 0, 0));
+            }
+        });
+        
+        deleteAccountButton.addActionListener(e -> handleDeleteAccount());
+        
         JButton logoutButton = new JButton("Logout");
         logoutButton.setBackground(new Color(0, 102, 204));
         logoutButton.setForeground(Color.WHITE);
@@ -425,10 +451,82 @@ public class HomePage extends JFrame {
             new LoginPage();
         });
         
+        rightPanel.add(deleteAccountButton);
+        rightPanel.add(logoutButton);
+        
         footerPanel.add(copyrightLabel, BorderLayout.WEST);
-        footerPanel.add(logoutButton, BorderLayout.EAST);
+        footerPanel.add(rightPanel, BorderLayout.EAST);
         
         return footerPanel;
+    }
+    
+    private void handleDeleteAccount() {
+        // First check if the user has any active bookings
+        boolean hasActiveBookings = false;
+        
+        try (Connection con = DBConnection.getConnection()) {
+            PreparedStatement ps = con.prepareStatement(
+                "SELECT COUNT(*) FROM Users_Booking ub " +
+                "JOIN Booking b ON ub.BookingID = b.BookingID " +
+                "WHERE ub.UserID = ? AND b.BookingStatus = 1"
+            );
+            ps.setInt(1, customer.getId());
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next() && rs.getInt(1) > 0) {
+                hasActiveBookings = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        if (hasActiveBookings) {
+            UIUtil.showErrorMessage(this, 
+                "You cannot delete your account while you have active bookings.\n" +
+                "Please cancel all active bookings first.");
+            return;
+        }
+        
+        // Ask for confirmation
+        boolean confirmDelete = UIUtil.showConfirmDialog(this,
+            "<html><b>Warning:</b> This action cannot be undone.<br><br>" +
+            "Are you sure you want to permanently delete your account?<br><br>" +
+            "All your data and booking history will be lost.</html>");
+        
+        if (!confirmDelete) {
+            return;
+        }
+        
+        // Double-check with password
+        JPasswordField passwordField = new JPasswordField();
+        int result = JOptionPane.showConfirmDialog(this, 
+            new Object[]{"Please enter your password to confirm account deletion:", passwordField},
+            "Confirm Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        
+        if (result != JOptionPane.OK_OPTION) {
+            return;
+        }
+        
+        String password = new String(passwordField.getPassword());
+        
+        // Verify password
+        try {
+            UserService userService = new UserService();
+            userService.authenticateUser(customer.getEmail(), password);
+            
+            // If authentication successful, proceed with account deletion
+            boolean deleted = userService.deleteUserAccount(customer.getId());
+            
+            if (deleted) {
+                UIUtil.showSuccessMessage(this, "Your account has been successfully deleted.");
+                dispose();
+                new LoginPage();
+            } else {
+                UIUtil.showErrorMessage(this, "Failed to delete account. Please try again later.");
+            }
+        } catch (Exception ex) {
+            UIUtil.showErrorMessage(this, "Incorrect password. Account deletion canceled.");
+        }
     }
     
     private JPanel createBookingsPanel() {

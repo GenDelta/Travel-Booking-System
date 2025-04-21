@@ -135,4 +135,43 @@ public class UserService {
             return 0;
         }
     }
+
+    public boolean deleteUserAccount(int userId) throws Exception {
+        Connection con = null;
+        try {
+            con = DBConnection.getConnection();
+            con.setAutoCommit(false);
+            
+            PreparedStatement psUserBooking = con.prepareStatement(
+                "DELETE FROM Users_Booking WHERE UserID = ?");
+            psUserBooking.setInt(1, userId);
+            psUserBooking.executeUpdate();
+            
+            PreparedStatement psUser = con.prepareStatement(
+                "DELETE FROM Users WHERE UserID = ?");
+            psUser.setInt(1, userId);
+            int result = psUser.executeUpdate();
+            
+            con.commit();
+            return result > 0;
+        } catch (SQLException e) {
+            if (con != null) {
+                try {
+                    con.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            throw new Exception("Error deleting account: " + e.getMessage());
+        } finally {
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                    con.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
